@@ -4,93 +4,77 @@ import {
   Store,
   SubstrateProcessor,
 } from "@subsquid/substrate-processor";
-import { Account, HistoricalBalance } from "./model";
+import { Account } from "./model";
 import { BalancesTransferEvent } from "./types/events";
 
-const processor = new SubstrateProcessor("kusama_balances");
+const processor = new SubstrateProcessor("peaq_accounts");
 
 processor.setTypesBundle("kusama");
 processor.setBatchSize(500);
 
 processor.setDataSource({
-  archive: "https://kusama.indexer.gc.subsquid.io/v4/graphql",
-  chain: "wss://kusama-rpc.polkadot.io",
+  archive: "http://localhost:4010/v1/graphql/",
+  chain: "wss://wss.test.peaq.network",
 });
 
-processor.addEventHandler("balances.Transfer", async (ctx) => {
-  const transfer = getTransferEvent(ctx);
-  const tip = ctx.extrinsic?.tip || 0n;
-  const from = ss58.codec("kusama").encode(transfer.from);
-  const to = ss58.codec("kusama").encode(transfer.to);
+// processor.addEventHandler("balances.Transfer", async (ctx) => {
 
-  const fromAcc = await getOrCreate(ctx.store, Account, from);
-  fromAcc.balance = fromAcc.balance || 0n;
-  fromAcc.balance -= transfer.amount;
-  fromAcc.balance -= tip;
-  await ctx.store.save(fromAcc);
+//   console.log(ctx);
+//   console.log("\n\n\n");
 
-  const toAcc = await getOrCreate(ctx.store, Account, to);
-  toAcc.balance = toAcc.balance || 0n;
-  toAcc.balance += transfer.amount;
-  await ctx.store.save(toAcc);
+  // const transfer = getTransferEvent(ctx);
+  // const tip = ctx.extrinsic?.tip || 0n;
+  // const from = ss58.codec("polkadot").encode(transfer.from);
+  // const to = ss58.codec("polkadot").encode(transfer.to);
 
-  await ctx.store.save(
-    new HistoricalBalance({
-      id: `${ctx.event.id}-to`,
-      account: fromAcc,
-      balance: fromAcc.balance,
-      date: new Date(ctx.block.timestamp),
-    })
-  );
+  // const fromAcc = await getOrCreate(ctx.store, Account, from);
+  // fromAcc.balance = fromAcc.balance || 0n;
+  // fromAcc.balance -= transfer.amount;
+  // fromAcc.balance -= tip;
+  // await ctx.store.save(fromAcc);
 
-  await ctx.store.save(
-    new HistoricalBalance({
-      id: `${ctx.event.id}-from`,
-      account: toAcc,
-      balance: toAcc.balance,
-      date: new Date(ctx.block.timestamp),
-    })
-  );
-});
+  // const toAcc = await getOrCreate(ctx.store, Account, to);
+  // toAcc.balance = toAcc.balance || 0n;
+  // toAcc.balance += transfer.amount;
+  // await ctx.store.save(toAcc);
+
+// });
 
 processor.run();
 
-interface TransferEvent {
-  from: Uint8Array;
-  to: Uint8Array;
-  amount: bigint;
-}
+// interface TransferEvent {
+//   from: Uint8Array;
+//   to: Uint8Array;
+//   amount: bigint;
+// }
 
-function getTransferEvent(ctx: EventHandlerContext): TransferEvent {
-  const event = new BalancesTransferEvent(ctx);
-  if (event.isV1020) {
-    const [from, to, amount] = event.asV1020;
-    return { from, to, amount };
-  }
-  if (event.isV1050) {
-    const [from, to, amount] = event.asV1050;
-    return { from, to, amount };
-  }
-  return event.asLatest;
-}
+// function getTransferEvent(ctx: EventHandlerContext): TransferEvent {
+//   const event = new BalancesTransferEvent(ctx);
+//   if (event.isV2) {
+//     const [from, to, amount] = event.asV2;
+//     return { from, to, amount };
+//   }
+  
+//   return event.asLatest;
+// }
 
-async function getOrCreate<T extends { id: string }>(
-  store: Store,
-  EntityConstructor: EntityConstructor<T>,
-  id: string
-): Promise<T> {
-  let entity = await store.get<T>(EntityConstructor, {
-    where: { id },
-  });
+// async function getOrCreate<T extends { id: string }>(
+//   store: Store,
+//   EntityConstructor: EntityConstructor<T>,
+//   id: string
+// ): Promise<T> {
+//   let entity = await store.get<T>(EntityConstructor, {
+//     where: { id },
+//   });
 
-  if (entity == null) {
-    entity = new EntityConstructor();
-    entity.id = id;
-  }
+//   if (entity == null) {
+//     entity = new EntityConstructor();
+//     entity.id = id;
+//   }
 
-  return entity;
-}
+//   return entity;
+// }
 
-type EntityConstructor<T> = {
-  new (...args: any[]): T;
-};
+// type EntityConstructor<T> = {
+//   new (...args: any[]): T;
+// };
