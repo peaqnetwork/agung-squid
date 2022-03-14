@@ -14,14 +14,14 @@ processor.setBatchSize(500);
 processor.setBlockRange({from: 0});
 
 processor.setDataSource({
-  archive: "http://localhost:4010/v1/graphql",
+  archive: "https://peaq.indexer.gc.subsquid.io/v4/graphql",
   chain: "wss://wss.test.peaq.network",
 });
 
 processor.addEventHandler("balances.Transfer", async (ctx) => {
 
-  console.log(ctx);
-  console.log("\n\n\n");
+  // console.log(ctx);
+  // console.log("\n\n\n");
 
   const transfer = getTransferEvent(ctx);
   const tip = ctx.extrinsic?.tip || 0n;
