@@ -13,7 +13,15 @@ image:
   repository: draft
   tag: dev
   pullPolicy: IfNotPresent
-
+# container
+postgres:
+  name: postgres
+  image: postgres
+  tag: 12
+  internalPort: 5432
+  env:
+    POSTGRES_DB: postgres
+    POSTGRES_PASSWORD: postgres
 # optional list of image pull secrets to use to pull images
 jx:
   # optional image pull secrets
@@ -69,13 +77,7 @@ service:
   annotations: {}
   # Add labels to the service
   labels: {}
-resources:
-  limits:
-    cpu: 400m
-    memory: 256Mi
-  requests:
-    cpu: 200m
-    memory: 128Mi
+
 probePath: /
 livenessProbe:
   initialDelaySeconds: 60
