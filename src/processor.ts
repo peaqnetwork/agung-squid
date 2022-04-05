@@ -4,14 +4,14 @@ import {
   Store,
   SubstrateProcessor,
 } from "@subsquid/substrate-processor";
-import { Account } from "./model";
+import { Account, Transfer } from "./model";
 import { BalancesTransferEvent } from "./types/events";
 
 const processor = new SubstrateProcessor("peaq_accounts");
 
 processor.setTypesBundle("polkadot");
 processor.setBatchSize(500);
-processor.setBlockRange({from: 0});
+processor.setBlockRange({ from: 0 });
 
 processor.setDataSource({
   archive: "https://peaq.indexer.gc.subsquid.io/v4/graphql",
@@ -19,10 +19,6 @@ processor.setDataSource({
 });
 
 processor.addEventHandler("balances.Transfer", async (ctx) => {
-
-  // console.log(ctx);
-  // console.log("\n\n\n");
-
   const transfer = getTransferEvent(ctx);
   const tip = ctx.extrinsic?.tip || 0n;
   const from = ss58.codec("polkadot").encode(transfer.from);
@@ -39,6 +35,19 @@ processor.addEventHandler("balances.Transfer", async (ctx) => {
   toAcc.balance += transfer.amount;
   await ctx.store.save(toAcc);
 
+  await ctx.store.save(
+    new Transfer({
+      id: ctx.event.id,
+      amount: transfer.amount,
+      from: fromAcc?.id,
+      to: toAcc?.id,
+      extrinsicIndex: ctx.extrinsic?.indexInBlock,
+      extrinsicHash: ctx.extrinsic?.hash,
+      blockNumber: ctx.block.height,
+      success: true,
+      createdAt: new Date(ctx.block.timestamp),
+    })
+  );
 });
 
 processor.run();
@@ -51,11 +60,18 @@ interface TransferEvent {
 
 function getTransferEvent(ctx: EventHandlerContext): TransferEvent {
   const event = new BalancesTransferEvent(ctx);
-  // if (event.isV2) {
-  //   const [from, to, amount] = event.asV2;
+  // if (event.isV1020) {
+  //   const [from, to, amount] = event.asV1020;
   //   return { from, to, amount };
   // }
-  
+  // if (event.isV1050) {
+  //   const [from, to, amount] = event.asV1050;
+  //   return { from, to, amount };
+  // }
+  // if (event.isV9130) {
+  //   const { from, to, amount } = event.asV9130;
+  //   return { from, to, amount };
+  // }
   return event.asLatest;
 }
 
