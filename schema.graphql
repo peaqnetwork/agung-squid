@@ -3,3 +3,15 @@ type Account @entity {
   id: ID!
   balance: BigInt!
 }
+
+type Transfer @entity {
+  id: ID!
+  amount: BigInt!
+  from: String!
+  to: String!
+  extrinsicIndex: Int!
+  extrinsicHash: String!
+  blockNumber: Int!
+  success: Boolean!
+  createdAt: DateTime!
+}
