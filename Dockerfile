@@ -31,12 +31,11 @@ ENV PROCESSOR_PROMETHEUS_PORT 3000
 EXPOSE 3000
 EXPOSE 4000
 
-FROM squid AS db
-CMD ["npm", "run", "db:migrate"]
-
 FROM squid AS processor
 CMD ["npm", "run", "processor:start"]
 
+FROM squid AS db
+CMD ["npm", "run", "db:migrate"]
 
 FROM squid AS query-node
 CMD ["npm", "run", "query-node:start"]
