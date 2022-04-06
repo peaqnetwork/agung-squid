@@ -32,6 +32,8 @@ EXPOSE 3000
 EXPOSE 4000
 
 FROM squid AS db
+CMD ["npm", "run", "db:drop-db"]
+CMD ["npm", "run", "db:create-db"]
 CMD ["npm", "run", "db:create-migration"]
 CMD ["npm", "run", "db:migrate"]
 
