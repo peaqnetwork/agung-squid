@@ -71,6 +71,20 @@ spec:
           timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
         resources:
 {{ toYaml .Values.resources | indent 12 }}
+      - name: {{ .Values.postgres.name }}
+        image:  "{{ .Values.postgres.image }}:{{ .Values.postgres.tag }}"
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: VERSION
+            value: latest
+          - name: "POSTGRES_DB"
+            value: "{{ .Values.postgres.env.POSTGRES_DB }}"
+          - name: "POSTGRES_PASSWORD"
+            value: "{{ .Values.postgres.env.POSTGRES_PASSWORD }}"
+        envFrom: null
+        ports:
+        - name: tcp
+          containerPort: {{ .Values.postgres.internalPort }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       imagePullSecrets:
 {{- range $pval := .Values.jx.imagePullSecrets }}
