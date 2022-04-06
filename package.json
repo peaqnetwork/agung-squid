@@ -4,6 +4,7 @@
   "scripts": {
     "build": "rm -rf lib && tsc",
     "init": "node db/init.js",
+    "db:create-migration": "npx sqd db create-migration peaq",
     "db:migrate": "npx sqd db migrate",
     "schema:reset": "",
     "processor:migrate": "echo skip",
