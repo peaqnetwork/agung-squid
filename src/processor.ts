@@ -15,7 +15,7 @@ processor.setBlockRange({ from: 0 });
 
 processor.setDataSource({
   archive: "https://peaq.indexer.gc.subsquid.io/v4/graphql",
-  chain: "wss://wss.test.peaq.network",
+  chain: "wss://wss.agung.peaq.network",
 });
 
 processor.addEventHandler("balances.Transfer", async (ctx) => {
